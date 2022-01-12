@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>hal_xsens_mti_620</name>
+  <version>0.0.0</version>
+  <description>HAL for Xsens MTi 620 VRU</description>
+  <author email="roncapat@gmail.com">Patrick Roncagliolo</author>
+  <maintainer email="roncapat@gmail.com">Patrick Roncagliolo</maintainer>
+  <license>GPLv3</license>
+
+  <depend>rclpy</depend>
+  <depend>sensor_msgs</depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
