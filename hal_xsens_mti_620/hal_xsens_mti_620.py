@@ -4,6 +4,7 @@ from threading import Thread, Lock
 import xsensdeviceapi as xda
 
 from rclpy.node import Node
+from std_msgs.msg import Header
 from sensor_msgs.msg import Imu
 
 class XdaCallback(xda.XsCallback):
@@ -40,8 +41,9 @@ class HALNode(Node):
 		
 		self.declare_parameter('port', '/dev/ttyS2')
 		self.declare_parameter('baudrate', '/dev/ttyS2')
-		self.declare_parameter('imu_topic', '/imu/data')
-		self.imu_publisher = self.create_publisher(Imu, self.get_parameter('imu_topic').value, 1)
+		self.declare_parameter('topic', '/imu/data')
+		self.declare_parameter('frame', 'imu')
+		self.imu_publisher = self.create_publisher(Imu, self.get_parameter('topic').value, 1)
 
 	def run(self):
 
@@ -136,6 +138,10 @@ class HALNode(Node):
 				pkt_imu.linear_acceleration.x = acc[0]
 				pkt_imu.linear_acceleration.y = acc[1]
 				pkt_imu.linear_acceleration.z = acc[2]
+
+				pkt_imu.header = Header()
+				pkt_imu.header.stamp = self.get_clock().now().to_msg()
+				pkt_imu.header.frame_id = self.get_parameter('frame').value
 
 				self.imu_publisher.publish(pkt_imu)
 
