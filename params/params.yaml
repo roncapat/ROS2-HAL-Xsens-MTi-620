@@ -1,6 +1,6 @@
 hal_xsens_mti_620:
   ros__parameters:
-    port: "/dev/ttyS2"
+    port: "/dev/ttyS0"
     baudrate: 115200 # the only supported for now
     topic: /imu/data
     frame: "imu"
