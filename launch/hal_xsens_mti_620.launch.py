@@ -16,7 +16,7 @@ def generate_launch_description():
         
         Node(
             package='hal_xsens_mti_620',
-            executable='hal_xsens_mti_620',
+            executable='HALMti620Executable',
             name='hal_xsens_mti_620',
             output={
                     "stdout": "screen",
