@@ -37,6 +37,7 @@ private:
     int baudrate, freq;
     std::string topic;
     std::string frame;
+    bool lin_acc;
 
     rclcpp::TimerBase::SharedPtr timer;
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_publisher_;

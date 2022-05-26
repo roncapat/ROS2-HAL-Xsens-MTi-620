@@ -9,6 +9,10 @@ using namespace std::chrono_literals;
 namespace hal
 {
 
+void cb(struct XsString const* s){
+	std::cerr << s->c_str() << std::endl;
+}
+
 XsensMti620::XsensMti620(const rclcpp::NodeOptions & options) : Node("XsensMti620", options)
 {
 	topic = declare_parameter<std::string>("topic", "/imu/data");
@@ -16,6 +20,7 @@ XsensMti620::XsensMti620(const rclcpp::NodeOptions & options) : Node("XsensMti62
 	port = declare_parameter<std::string>("port", "/dev/ttyS2");
 	baudrate = declare_parameter<int>("baudrate", 115200);
 	freq = declare_parameter<int>("frequency", 100);
+	lin_acc = declare_parameter<bool>("lin_acc", false);
 
 	control = XsControl::construct();
 	assert(control != 0);
@@ -31,6 +36,9 @@ XsensMti620::XsensMti620(const rclcpp::NodeOptions & options) : Node("XsensMti62
 		std::abort();
 	}
 
+	//XsScanner::setScanLogCallback(&cb);
+
+	RCLCPP_INFO(get_logger(), "Scanning port %s at baudrate %d", port.c_str(), XsBaud::rateToNumeric(_baud));
 	mtPort = XsScanner::scanPort(_port, _baud);
 	if(mtPort.empty()){
 		RCLCPP_ERROR(get_logger(),"No MTi devide found. Aborting!!");
@@ -78,7 +86,9 @@ XsensMti620::XsensMti620(const rclcpp::NodeOptions & options) : Node("XsensMti62
 	configArray.push_back(XsOutputConfiguration(XsDataIdentifier::XDI_SampleTimeFine, 0));
 
 	if(device->deviceId().isVru() || device->deviceId().isAhrs() || device->deviceId().isGnss()){
-		configArray.push_back(XsOutputConfiguration(XsDataIdentifier::XDI_Acceleration, freq));
+		if (lin_acc){
+			configArray.push_back(XsOutputConfiguration(XsDataIdentifier::XDI_Acceleration, freq));
+		}
 		configArray.push_back(XsOutputConfiguration(XsDataIdentifier::XDI_RateOfTurn, freq));
 		configArray.push_back(XsOutputConfiguration(XsDataIdentifier::XDI_Quaternion, freq));
 	} else {
@@ -115,7 +125,7 @@ XsensMti620::~XsensMti620(){
 }
 
 void XsensMti620::run(){
-	auto data_packet = callback.next(std::chrono::milliseconds(1000/freq/2));
+	auto data_packet = callback.next(std::chrono::milliseconds(2));
 	if (!data_packet.second.empty())
 	{
 		auto quaternion = data_packet.second.orientationQuaternion();
@@ -135,9 +145,11 @@ void XsensMti620::run(){
 		pkt_imu->angular_velocity.x = gyr[0];
 		pkt_imu->angular_velocity.y = gyr[1];
 		pkt_imu->angular_velocity.z = gyr[2];
-		pkt_imu->linear_acceleration.x = acc[0];
-		pkt_imu->linear_acceleration.y = acc[1];
-		pkt_imu->linear_acceleration.z = acc[2];
+		if (lin_acc){
+			pkt_imu->linear_acceleration.x = acc[0];
+			pkt_imu->linear_acceleration.y = acc[1];
+			pkt_imu->linear_acceleration.z = acc[2];
+		}
 		imu_publisher_->publish(std::move(pkt_imu));
 	}
 }

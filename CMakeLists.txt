@@ -41,7 +41,7 @@ link_directories(
 )
 
 add_library(HALMti620 SHARED src/xsens_mti620.cpp src/xdacallback.cpp)
-target_link_libraries(HALMti620 
+target_link_libraries(HALMti620
 	-lxsensdeviceapi
 	-lxstypes
 )
