@@ -38,6 +38,7 @@ private:
     std::string topic;
     std::string frame;
     bool lin_acc;
+    float orientation_stddev, angular_velocity_stddev, linear_acceleration_stddev;
 
     rclcpp::TimerBase::SharedPtr timer;
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_publisher_;

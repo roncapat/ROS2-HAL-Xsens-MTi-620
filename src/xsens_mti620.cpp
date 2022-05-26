@@ -21,6 +21,9 @@ XsensMti620::XsensMti620(const rclcpp::NodeOptions & options) : Node("XsensMti62
 	baudrate = declare_parameter<int>("baudrate", 115200);
 	freq = declare_parameter<int>("frequency", 100);
 	lin_acc = declare_parameter<bool>("lin_acc", false);
+	orientation_stddev = declare_parameter<float>("orientation_stddev", 1e-3);
+	angular_velocity_stddev = declare_parameter<float>("angular_velocity_stddev", 1e-3);
+	linear_acceleration_stddev = declare_parameter<float>("linear_acceleration_stddev", 1e-3);
 
 	control = XsControl::construct();
 	assert(control != 0);
@@ -142,14 +145,31 @@ void XsensMti620::run(){
 		pkt_imu->orientation.y = quaternion.y();
 		pkt_imu->orientation.z = quaternion.z();
 		pkt_imu->orientation.w = quaternion.w();
+
 		pkt_imu->angular_velocity.x = gyr[0];
 		pkt_imu->angular_velocity.y = gyr[1];
 		pkt_imu->angular_velocity.z = gyr[2];
+
 		if (lin_acc){
 			pkt_imu->linear_acceleration.x = acc[0];
 			pkt_imu->linear_acceleration.y = acc[1];
 			pkt_imu->linear_acceleration.z = acc[2];
 		}
+
+		pkt_imu->orientation_covariance[0] = orientation_stddev;
+		pkt_imu->orientation_covariance[4] = orientation_stddev;
+		pkt_imu->orientation_covariance[8] = orientation_stddev;
+
+		pkt_imu->angular_velocity_covariance[0] = angular_velocity_stddev;
+		pkt_imu->angular_velocity_covariance[4] = angular_velocity_stddev;
+		pkt_imu->angular_velocity_covariance[8] = angular_velocity_stddev;
+
+		if (lin_acc){
+			pkt_imu->linear_acceleration_covariance[0] = linear_acceleration_stddev;
+			pkt_imu->linear_acceleration_covariance[4] = linear_acceleration_stddev;
+			pkt_imu->linear_acceleration_covariance[8] = linear_acceleration_stddev;
+		}
+
 		imu_publisher_->publish(std::move(pkt_imu));
 	}
 }

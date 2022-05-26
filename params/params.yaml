@@ -6,3 +6,13 @@ hal_xsens_mti_620:
     frame: imu
     frequency: 200 # Hz
     lin_acc: false
+
+    # datasheet roll, pitch RMS (warning: yaw is unreferenced and may drift over time)
+    orientation_stddev: 0.349 # rad
+    # take accelerometer noise density ND from datasheet (0.004 deg/(s*sqrt(hz)))
+    # angular_velocity_stddev: ND * sqrt(freq) * 0,0174533
+    angular_velocity_stddev: 0.0009873 # rad/s
+    # take accelerometer noise density ND from datasheet (60 ug/sqrt(hz))
+    # linear_acceleration_stddev: ND * sqrt(freq) * 9,81 / 1000000
+    # https://github.com/xsens/xsens_mti_ros_node/issues/70
+    linear_acceleration_stddev: 0.008324 # m/s^2
